@@ -1,12 +1,16 @@
 # Dockerfile for Homeboys Swift Backend
+
 FROM node:18-alpine
 WORKDIR /usr/src/app
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --production
 COPY . .
+COPY ../frontend ./frontend
 ENV NODE_ENV=production
-EXPOSE 10000
+EXPOSE 3000
 CMD ["node", "src/index.js"]
+
+
 
 
 
