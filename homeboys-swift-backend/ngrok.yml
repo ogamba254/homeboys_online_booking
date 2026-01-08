@@ -1,0 +1,7 @@
+authtoken: ${NGROK_AUTH_TOKEN}
+tunnels:
+  web:
+    proto: http
+    addr: 3000
+    # To use a reserved subdomain (persistent), uncomment and set an environment variable
+    # subdomain: ${NGROK_SUBDOMAIN}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Trips - Admin</title>
+    <style>body{font-family:Arial, sans-serif;padding:20px} .card{background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);max-width:800px;margin:auto}</style>
+</head>
+<body>
+    <div class="card">
+        <h1>Manage Trip Price</h1>
+        <p>Update a specific trip's price by ID.</p>
+        <form id="update-trip-form">
+            <div style="margin-bottom:10px">
+                <label for="trip-id">Trip ID</label><br>
+                <input id="trip-id" required style="width:100%;padding:8px" placeholder="Enter trip id (e.g. 64a...)">
+            </div>
+            <div style="margin-bottom:10px">
+                <label for="trip-price">New Price (KES)</label><br>
+                <input id="trip-price" type="number" required style="width:100%;padding:8px" placeholder="e.g. 1500">
+            </div>
+            <button type="submit" style="padding:10px 16px;background:#e84c3d;color:#fff;border:none;border-radius:6px;cursor:pointer">Update Price</button>
+        </form>
+        <div id="status" style="margin-top:12px;color:#333"></div>
+    </div>
+
+    <script>
+    document.getElementById('update-trip-form').addEventListener('submit', async function(e){
+        e.preventDefault();
+        const id = document.getElementById('trip-id').value.trim();
+        const price = Number(document.getElementById('trip-price').value);
+        if (!id) return alert('Enter trip id');
+        try {
+            const resp = await fetch('/api/v1/trips/' + encodeURIComponent(id), {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ price })
+            });
+            const txt = document.getElementById('status');
+            if (resp.ok) {
+                const data = await resp.json();
+                txt.textContent = 'Updated. New price: KES ' + data.price;
+            } else {
+                const err = await resp.json().catch(()=>({message:'Unknown error'}));
+                txt.textContent = 'Failed: ' + (err.message || resp.statusText);
+            }
+        } catch (err) {
+            document.getElementById('status').textContent = 'Error: ' + err.message;
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New User Registration - Homeboys-Swift</title>
+    <style>
+        /* 1. Define Theme Variables */
+        :root {
+            --background-color: #f4f7f9;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --primary-color: #e84c3d; /* Warm Red/Orange */
+            --primary-light: #f77f74;
+            --secondary-color: #34495e; /* Dark Navy */
+            --border-color: #dee2e6;
+        }
+        
+        [data-theme='dark'] {
+            --background-color: #1a1e22;
+            --card-background: #2c3034;
+            --text-color: #e9ecef;
+            --primary-color: #f06292; /* Pink/Purple accent for dark mode */
+            --primary-light: #f48fb1;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+        }
+
+        /* 2. Global Resets & Body */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Arial', sans-serif; 
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 1200px;
+            padding: 20px;
+            width: 100%;
+            text-align: center; /* Center h1 and card */
+        }
+        h1 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        [data-theme='dark'] h1 {
+            color: var(--text-color);
+        }
+
+        /* 3. Card & Form Styles */
+        .card {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            text-align: left;
+        }
+        .card label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .card input[type="text"], 
+        .card input[type="email"], 
+        .card input[type="tel"], 
+        .card input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: border-color 0.2s;
+        }
+        .card input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(232, 76, 61, 0.1);
+        }
+
+        /* 4. Buttons */
+        .card button[type="submit"] {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .card button[type="submit"]:hover {
+            background-color: var(--primary-light);
+        }
+        
+        /* 5. Links and Toggles */
+        .card a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .card a:hover {
+            text-decoration: underline;
+        }
+        #theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #theme-toggle:hover {
+            background: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="theme-toggle">Dark Mode</button>
+        
+        <h1>Create Your Account</h1>
+
+        <div class="card">
+            <form id="register-form">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" required>
+
+                <label for="email-reg">Email Address:</label>
+                <input type="email" id="email-reg" required>
+
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" pattern="[0-9]{10}" title="Ten digits phone number (e.g., 0712345678)" required>
+
+                <label for="password-reg">Password (Min 6 chars):</label>
+                <input type="password" id="password-reg" minlength="6" required>
+
+                <button type="submit">Register Account</button>
+            </form>
+            <p style="margin-top: 20px; text-align: center;">Already have an account? <a href="login.html">Login Here</a></p>
+        </div>
+    </div>
+
+    <script>
+        // --- Dark/Light Mode Logic (Copied from index.html for file independence) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const storedTheme = localStorage.getItem('theme') || 'light';
+
+            document.documentElement.setAttribute('data-theme', storedTheme);
+            themeToggle.textContent = storedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            });
+
+            // --- Page-specific logic: Registration ---
+            document.getElementById('register-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email-reg').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const password = document.getElementById('password-reg').value;
+
+                if (!name || !email || !password) {
+                    alert('Please fill all required fields.');
+                    return;
+                }
+
+                if (password.length < 6) {
+                    alert('Password must be at least 6 characters long.');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/v1/auth/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ name, email, phone, password })
+                    });
+
+                    const data = await res.json();
+                    if (!res.ok) {
+                        const msg = data && data.message ? data.message : 'Registration failed.';
+                        alert(msg);
+                        return;
+                    }
+
+                    alert(data.message || 'Registration successful. Please log in.');
+                    window.location.href = 'login.html';
+                } catch (err) {
+                    console.error('Registration error', err);
+                    alert('Network error. Please try again later.');
+                }
+            });
+        });
+        
+        // Removed external script reference to 'app.js' to keep file self-contained.
+    </script>
+</body>
+</html>

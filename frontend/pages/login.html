@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login - Homeboys-Swift</title>
+    <style>
+        /* 1. Define Theme Variables */
+        :root {
+            --background-color: #f4f7f9;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --primary-color: #e84c3d; /* Warm Red/Orange */
+            --primary-light: #f77f74;
+            --secondary-color: #34495e; /* Dark Navy */
+            --border-color: #dee2e6;
+        }
+        
+        [data-theme='dark'] {
+            --background-color: #1a1e22;
+            --card-background: #2c3034;
+            --text-color: #e9ecef;
+            --primary-color: #f06292; /* Pink/Purple accent for dark mode */
+            --primary-light: #f48fb1;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+        }
+
+        /* 2. Global Resets & Body */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Arial', sans-serif; 
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 1200px;
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        [data-theme='dark'] h1 {
+            color: var(--text-color);
+        }
+
+        /* 3. Card & Form Styles (Matching Register Page) */
+        .card {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            text-align: left;
+        }
+        .card label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .card input[type="email"], 
+        .card input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: border-color 0.2s;
+        }
+        .card input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(232, 76, 61, 0.1);
+        }
+
+        /* 4. Buttons */
+        .card button[type="submit"] {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .card button[type="submit"]:hover {
+            background-color: var(--primary-light);
+        }
+        
+        /* 5. Links and Toggles */
+        .card a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .card a:hover {
+            text-decoration: underline;
+        }
+        #theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #theme-toggle:hover {
+            background: var(--primary-color);
+        }
+        .error-message {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="theme-toggle">Dark Mode</button>
+        
+        <h1>Login to Homeboys-Swift</h1>
+
+        <div class="card">
+            <form id="login-form" action="/auth/login" method="POST">
+                <div id="error-message" class="error-message" style="display: none;"></div>
+
+                <label for="email-log">Email Address:</label>
+                <input type="email" id="email-log" name="email" required>
+
+                <label for="password-log">Password:</label>
+                <input type="password" id="password-log" name="password" required>
+
+                <button type="submit">Secure Login</button>
+            </form>
+            <p style="margin-top: 20px; text-align: center;">Need an account? <a href="register.html">Register Now</a></p>
+        </div>
+    </div>
+
+    <script>
+        // --- Dark/Light Mode Logic (Copied for file independence) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const storedTheme = localStorage.getItem('theme') || 'light';
+
+            document.documentElement.setAttribute('data-theme', storedTheme);
+            themeToggle.textContent = storedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            });
+
+            // --- Page-specific logic: Login ---
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email-log').value.trim();
+                const password = document.getElementById('password-log').value;
+                const errorMessage = document.getElementById('error-message');
+
+                errorMessage.style.display = 'none';
+
+                if (!email || !password) {
+                    errorMessage.textContent = 'Please provide email and password.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/v1/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await res.json();
+                    if (!res.ok) {
+                        errorMessage.textContent = data && data.message ? data.message : 'Login failed.';
+                        errorMessage.style.display = 'block';
+                        return;
+                    }
+
+                    // If backend returned a redirectUrl, use it; otherwise base on role
+                    const redirectUrl = data.redirectUrl || (data.role === 'admin' ? './admin/dashboard.html' : 'index.html');
+                    // Optionally store token and user context in localStorage (server already sets HttpOnly cookie)
+                    if (data.token) localStorage.setItem('token', data.token);
+                    if (data.user_id) localStorage.setItem('userId', data.user_id);
+                    if (data.email) localStorage.setItem('userEmail', data.email);
+
+                    window.location.href = redirectUrl;
+                } catch (err) {
+                    console.error('Login error', err);
+                    errorMessage.textContent = 'Network error. Please try again later.';
+                    errorMessage.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

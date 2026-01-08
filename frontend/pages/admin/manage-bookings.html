@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Bookings - Homeboys-Swift Admin</title>
+    <style>
+        /* --- ADMIN PANEL BASE CSS (Copied for file independence) --- */
+        :root {
+            --background-color: #f4f7f9;
+            --sidebar-color: #2c3e50;
+            --main-text-color: #212529;
+            --card-background: #ffffff;
+            --primary-color: #e84c3d;
+            --primary-light: #f77f74;
+            --secondary-color: #34495e;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --pending-color: #ffc107;
+            --cancelled-color: #dc3545;
+        }
+        [data-theme='dark'] {
+            --background-color: #1a1e22;
+            --sidebar-color: #212529;
+            --main-text-color: #e9ecef;
+            --card-background: #2c3034;
+            --primary-color: #f06292;
+            --primary-light: #f48fb1;
+            --border-color: #495057;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--main-text-color);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+        }
+        /* Layout */
+        #sidebar {
+            width: 250px;
+            background-color: var(--sidebar-color);
+            color: white;
+            padding: 20px 0;
+            flex-shrink: 0;
+            transition: background-color 0.3s;
+        }
+        #main-content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        /* Sidebar Navigation */
+        #sidebar h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+        #sidebar a {
+            display: block;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-left: 5px solid transparent;
+            transition: background-color 0.2s, border-left 0.2s;
+        }
+        #sidebar a:hover, #sidebar a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 5px solid var(--primary-color);
+        }
+        /* Header */
+        #admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-background);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        #admin-header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+        /* Cards & Forms */
+        .card {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
+            color: var(--main-text-color);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--background-color);
+            color: var(--main-text-color);
+        }
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            margin-top: 20px;
+        }
+        .data-table th, .data-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table th {
+            background-color: var(--background-color);
+            color: var(--secondary-color);
+            font-size: 0.9em;
+        }
+        .data-table tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        [data-theme='dark'] .data-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+        .btn-icon {
+            background: var(--secondary-color);
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar { width: 100%; height: auto; padding: 10px 0; }
+            #sidebar nav { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
+            #sidebar a { border-left: none; border-bottom: 3px solid transparent; padding: 10px 15px; }
+            #sidebar a:hover, #sidebar a.active { border-left: none; border-bottom: 3px solid var(--primary-color); }
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2>Homeboys Admin</h2>
+        <nav>
+            <a href="dashboard.html">📊 Dashboard</a>
+            <a href="manage-routes.html">🗺️ Routes</a>
+            <a href="manage-buses.html">🚌 Buses</a>
+            <a href="manage-bookings.html" class="active">📝 Bookings</a>
+            <a href="reports.html">📈 Reports</a>
+            <a href="manage-users.html">👥 Users</a> 
+            <a href="/index.html">🚪 Exit Admin</a>
+        </nav>
+    </div>
+
+    <div id="main-content">
+        <header id="admin-header">
+            <h1>Booking Management</h1>
+            <button id="theme-toggle" class="btn-icon">Dark Mode</button>
+        </header>
+
+        <section class="card">
+            <h2>Search & Filters</h2>
+            <form id="filter-form">
+                <div class="form-group" style="display: flex; gap: 20px;">
+                    <div style="flex: 2;">
+                        <label for="search-term">Search by Booking ID or Customer Name</label>
+                        <input type="text" id="search-term" placeholder="BKB12345 or Jane Doe">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="status-filter">Filter by Status</label>
+                        <select id="status-filter">
+                            <option value="">All Statuses</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="pending">Pending Payment</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="date-filter">Trip Date</label>
+                        <input type="date" id="date-filter">
+                    </div>
+                    <div style="flex-none; align-self: flex-end;">
+                        <button type="submit" class="btn-primary">Apply Filters</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+        
+        <section class="card">
+            <h2>Current Bookings List (125 Total)</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Trip</th>
+                        <th>Seats</th>
+                        <th>Total (KES)</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>BKB12345</td>
+                        <td>Jane Doe</td>
+                        <td>NBO-MBA (08:00)</td>
+                        <td>A1, A2</td>
+                        <td>3,000</td>
+                        <td style="color: var(--success-color); font-weight: bold;">Confirmed</td>
+                        <td>
+                            <a href="booking-details.html" style="color: var(--primary-color);">View Details</a> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>BKB12346</td>
+                        <td>John Smith</td>
+                        <td>KSM-NBO (10:30)</td>
+                        <td>C3</td>
+                        <td>1,200</td>
+                        <td style="color: var(--pending-color); font-weight: bold;">Pending</td>
+                        <td>
+                            <a href="booking-details.html" style="color: var(--primary-color);">View Details</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>BKB12347</td>
+                        <td>M. Kihara</td>
+                        <td>NBO-MOM (14:00)</td>
+                        <td>B4, B5</td>
+                        <td>3,500</td>
+                        <td style="color: var(--cancelled-color); font-weight: bold;">Cancelled</td>
+                        <td>
+                            <a href="booking-details.html" style="color: var(--primary-color);">View Details</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <script>
+        // Global Theme Logic (repeated for file independence)
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const storedTheme = localStorage.getItem('theme') || 'light';
+
+            document.documentElement.setAttribute('data-theme', storedTheme);
+            themeToggle.textContent = storedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            });
+            
+            // Booking Management: fetch all bookings and client-side filter
+            let allBookings = [];
+            const bookingsTbody = document.querySelector('.data-table tbody');
+
+            async function fetchBookings() {
+                try {
+                    const res = await fetch('/api/v1/bookings/all', { credentials: 'include' });
+                    if (!res.ok) throw new Error('Failed to fetch bookings');
+                    allBookings = await res.json();
+                    renderBookings(allBookings);
+                    document.querySelector('h2').textContent = `Current Bookings List (${allBookings.length} Total)`;
+                } catch (err) {
+                    console.error('Error fetching bookings', err);
+                }
+            }
+
+            function renderBookings(list) {
+                bookingsTbody.innerHTML = '';
+                list.forEach(b => {
+                    const tr = document.createElement('tr');
+                    const tripText = `${b.origin}-${b.destination} (${b.departure_time || ''})`;
+                    tr.innerHTML = `
+                        <td>${b.booking_id}</td>
+                        <td>${b.user_email || ''}</td>
+                        <td>${tripText}</td>
+                        <td>${b.seat_number}</td>
+                        <td>${b.price_paid}</td>
+                        <td>${b.status || 'confirmed'}</td>
+                        <td><a href="#" data-id="${b.booking_id}" class="view-link" style="color: var(--primary-color);">View Details</a></td>
+                    `;
+                    bookingsTbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('filter-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const term = document.getElementById('search-term').value.trim().toLowerCase();
+                const status = document.getElementById('status-filter').value;
+                const date = document.getElementById('date-filter').value;
+
+                let filtered = allBookings.slice();
+                if (term) {
+                    filtered = filtered.filter(b => (b.booking_id && b.booking_id.toLowerCase().includes(term)) || (b.user_email && b.user_email.toLowerCase().includes(term)));
+                }
+                if (status) filtered = filtered.filter(b => (b.status || 'confirmed') === status);
+                if (date) filtered = filtered.filter(b => (b.date && new Date(b.date).toISOString().slice(0,10) === date));
+
+                renderBookings(filtered);
+            });
+
+            // initial load
+            fetchBookings();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Search Results - Homeboys-Swift</title>
+    
+    <style>
+        /* 1. Define Theme Variables */
+        :root {
+            /* Light Mode Defaults */
+            --background-color: #f4f7f9;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --primary-color: #e84c3d; /* Warm Red/Orange for primary branding */
+            --primary-light: #f77f74;
+            --secondary-color: #34495e; /* Dark Navy for strong contrast */
+            --border-color: #dee2e6;
+            --hero-background: #465a70;
+        }
+        
+        [data-theme='dark'] {
+            /* Dark Mode Overrides */
+            --background-color: #1a1e22;
+            --card-background: #2c3034;
+            --text-color: #e9ecef;
+            --primary-color: #f06292; /* Pink/Purple accent for dark mode */
+            --primary-light: #f48fb1;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --hero-background: #212529;
+        }
+
+        /* 2. Global Resets & Body */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Arial', sans-serif; 
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            flex-grow: 1; 
+        }
+        h1, h2, h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5em;
+            transition: color 0.3s;
+        }
+        [data-theme='dark'] h1, [data-theme='dark'] h2, [data-theme='dark'] h3 {
+            color: var(--text-color);
+        }
+        h1 {
+            text-align: center;
+            padding: 50px 0 30px 0;
+            font-size: 2.2rem;
+            color: var(--primary-color);
+        }
+
+        /* 3. Header & Navigation */
+        #main-header {
+            background-color: var(--card-background);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            margin-left: 20px;
+            padding: 5px 10px;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        /* 4. Search Results Card Styles */
+        .card {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .bus-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            border-left: 5px solid var(--primary-color);
+        }
+        .bus-result h3 {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+        .bus-result p {
+            font-size: 1rem;
+            margin: 5px 0;
+            flex-basis: 150px;
+        }
+        .bus-result strong {
+            color: var(--primary-color);
+        }
+
+
+        /* 5. Buttons */
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+        .btn-primary-ghost {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-primary-ghost:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-icon {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .bus-result button {
+            /* Style for the 'Select Seats' button */
+            align-self: center;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .bus-result button:hover {
+            background-color: var(--primary-light);
+        }
+
+
+        /* 6. Footer Styles */
+        #main-footer {
+            background-color: var(--secondary-color); 
+            color: white;
+            padding: 40px 0;
+            margin-top: auto; 
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 40px;
+        }
+        .footer-section h3 {
+            color: var(--primary-light); 
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .footer-section p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #cccccc;
+        }
+        .footer-section ul {
+            list-style: none;
+        }
+        .footer-section ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            line-height: 2;
+            transition: color 0.2s;
+        }
+        .footer-section ul li a:hover {
+            color: var(--primary-color); 
+        }
+
+        /* 7. Responsiveness */
+        @media (max-width: 900px) {
+             .footer-grid {
+                grid-template-columns: repeat(2, 1fr); 
+            }
+             .bus-result {
+                 flex-wrap: wrap;
+                 justify-content: flex-start;
+                 text-align: left;
+             }
+             .bus-result > * {
+                 width: 50%;
+                 margin-bottom: 10px;
+             }
+             .bus-result h3 {
+                 width: 100%;
+             }
+             .bus-result button {
+                 width: 100%;
+                 margin-top: 10px;
+                 padding: 12px;
+             }
+             .bus-result p {
+                 flex-basis: auto;
+             }
+        }
+        @media (max-width: 600px) {
+            .header-content {
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center;
+            }
+            .logo {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            nav {
+                margin-bottom: 10px;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr; 
+            }
+            .footer-section {
+                margin-bottom: 20px;
+            }
+            .bus-result > * {
+                 width: 100%;
+             }
+        }
+    </style>
+</head>
+<body>
+    
+    <header id="main-header">
+        <div class="header-content container">
+            <a href="index.html" class="logo">Homeboys-Swift</a>
+            <nav>
+                <a href="search-bus.html" style="color: var(--primary-light);">Book A Trip</a>
+                <!-- Admin Panel link removed for public pages -->
+                <a href="login.html">My Trips / Login</a>
+                <a href="register.html" class="btn-primary-ghost">Register</a>
+            </nav>
+            <button id="theme-toggle" class="btn-icon">Dark Mode</button>
+        </div>
+    </header>
+    <div class="container">
+        <h1 id="search-header">Available Trips</h1>
+        <div id="results-list">
+            </div>
+    </div>
+
+
+    <footer id="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Homeboys-Swift is dedicated to providing swift, safe, and comfortable travel across the region.</p>
+                <p>&copy; 2025 Homeboys-Swift Travellers.</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="search-bus.html">Book Now</a></li>
+                    <li><a href="login.html">My Bookings</a></li>
+                    <li><a href="#careers">Careers</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#faq">FAQ</a></li>
+                    <li><a href="#policy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms & Conditions</a></li>
+                    <li><a href="mailto:support@homeboys-swift.com">Contact Support</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>Email: info@homeboys-swift.com</p>
+                <p>Phone: +254 7XX XXX XXX</p>
+                <p>Head Office: Nairobi, Kenya</p>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // --- Global Theme Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const storedTheme = localStorage.getItem('theme') || 'light';
+
+            document.documentElement.setAttribute('data-theme', storedTheme);
+            themeToggle.textContent = storedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            });
+        });
+
+
+        // Page-specific logic: Fetch and display search results
+        document.addEventListener('DOMContentLoaded', async () => {
+            const searchData = JSON.parse(localStorage.getItem('lastSearch'));
+            const header = document.getElementById('search-header');
+            const listContainer = document.getElementById('results-list');
+            
+            if (!searchData) {
+                listContainer.innerHTML = `<p class="card" style="text-align: center;">Please go back to the <a href="index.html" style="color: var(--primary-color);">Home Page</a> to search.</p>`;
+                header.textContent = `Search Error`;
+                return;
+            }
+
+            // Display search info
+            header.textContent = `Trips from ${searchData.origin} to ${searchData.destination} on ${searchData.date}`;
+
+            // Real API call to backend search endpoint
+            try {
+                const params = new URLSearchParams({ origin: searchData.origin, destination: searchData.destination, date: searchData.date });
+                const resp = await fetch('/api/v1/trips/search?' + params.toString());
+                if (!resp.ok) {
+                    listContainer.innerHTML = '<p class="card" style="text-align: center;">No buses found for your route. Try a different date.</p>';
+                    return;
+                }
+
+                const trips = await resp.json();
+                if (!trips || trips.length === 0) {
+                    listContainer.innerHTML = '<p class="card" style="text-align: center;">No buses found for your route. Try a different date.</p>';
+                    return;
+                }
+
+                trips.forEach(bus => {
+                    const card = document.createElement('div');
+                    card.className = 'card bus-result';
+                    card.innerHTML = `
+                        <div>
+                            <h3>${bus.plate_number || bus.model || 'Operator'} - ${bus.origin} → ${bus.destination}</h3>
+                        </div>
+                        <p>Departure: <strong>${bus.departure_time || ''}</strong></p>
+                        <p>Price: <strong>KES ${bus.price}</strong></p>
+                        <p>Seats Available: ${bus.available_seats}</p>
+                        <button class="btn-select" onclick="selectBus('${bus.trip_id}', ${bus.price})">Select Seats</button>
+                    `;
+                    listContainer.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Error fetching trips', err);
+                listContainer.innerHTML = '<p class="card" style="text-align: center;">Error fetching trips. Please try again later.</p>';
+            }
+        });
+        
+        function selectBus(tripId, price) {
+            // Save essential trip details for the next page (seat-selection)
+            localStorage.setItem('selectedTrip', JSON.stringify({ tripId, price }));
+            window.location.href = 'seat-selection.html';
+        }
+        
+        // Placeholder function (for completeness)
+        function fetchData(endpoint, data) {
+            console.log(`[API] Calling ${endpoint} with data:`, data);
+            return new Promise(resolve => setTimeout(() => resolve({ success: true }), 500));
+        }
+    </script>
+</body>
+</html>

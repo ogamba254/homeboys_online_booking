@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Homeboys-Swift Admin</title>
+    <style>
+        /* --- ADMIN PANEL BASE CSS (Copied for file independence) --- */
+        :root {
+            --background-color: #f4f7f9;
+            --sidebar-color: #2c3e50;
+            --main-text-color: #212529;
+            --card-background: #ffffff;
+            --primary-color: #e84c3d;
+            --primary-light: #f77f74;
+            --secondary-color: #34495e;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+        }
+        [data-theme='dark'] {
+            --background-color: #1a1e22;
+            --sidebar-color: #212529;
+            --main-text-color: #e9ecef;
+            --card-background: #2c3034;
+            --primary-color: #f06292;
+            --primary-light: #f48fb1;
+            --border-color: #495057;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--main-text-color);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+        }
+        /* Layout */
+        #sidebar {
+            width: 250px;
+            background-color: var(--sidebar-color);
+            color: white;
+            padding: 20px 0;
+            flex-shrink: 0;
+            transition: background-color 0.3s;
+        }
+        #main-content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        /* Sidebar Navigation */
+        #sidebar h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+        #sidebar a {
+            display: block;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-left: 5px solid transparent;
+            transition: background-color 0.2s, border-left 0.2s;
+        }
+        #sidebar a:hover, #sidebar a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 5px solid var(--primary-color);
+        }
+        /* Header */
+        #admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-background);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        #admin-header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+        /* Cards & Forms */
+        .card {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
+            color: var(--main-text-color);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--background-color);
+            color: var(--main-text-color);
+        }
+        /* Reports Specific */
+        .report-result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--background-color);
+        }
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+        .btn-icon {
+            background: var(--secondary-color);
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar { width: 100%; height: auto; padding: 10px 0; }
+            #sidebar nav { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
+            #sidebar a { border-left: none; border-bottom: 3px solid transparent; padding: 10px 15px; }
+            #sidebar a:hover, #sidebar a.active { border-left: none; border-bottom: 3px solid var(--primary-color); }
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2>Homeboys Admin</h2>
+        <nav>
+            <a href="dashboard.html">📊 Dashboard</a>
+            <a href="manage-routes.html">🗺️ Routes</a>
+            <a href="manage-buses.html">🚌 Buses</a>
+            <a href="manage-bookings.html">📝 Bookings</a>
+            <a href="reports.html" class="active">📈 Reports</a>
+            <a href="manage-users.html">👥 Users</a>
+            <a href="/index.html">🚪 Exit Admin</a>
+        </nav>
+    </div>
+
+    <div id="main-content">
+        <header id="admin-header">
+            <h1>Business Reports</h1>
+            <button id="theme-toggle" class="btn-icon">Dark Mode</button>
+        </header>
+
+        <section class="card">
+            <h2>Generate Report</h2>
+            <form id="report-form">
+                <div class="form-group" style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <label for="report-type">Report Type</label>
+                        <select id="report-type" required>
+                            <option value="">Select Report</option>
+                            <option value="revenue">Revenue by Route</option>
+                            <option value="load-factor">Load Factor by Bus</option>
+                            <option value="bookings-summary">Bookings Summary</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="start-date">Start Date</label>
+                        <input type="date" id="start-date" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="end-date">End Date</label>
+                        <input type="date" id="end-date" required>
+                    </div>
+                    <div style="flex-none; align-self: flex-end;">
+                        <button type="submit" class="btn-primary">Generate</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+        
+        <section class="card">
+            <h2>Report Output</h2>
+            <div id="report-output">
+                <p>Select a report type and date range to view results.</p>
+                <div class="report-result" style="display: none;" id="sample-revenue-report">
+                    <h3>Revenue by Route: 2025-11-01 to 2025-11-30</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Route</th>
+                                <th>Trips</th>
+                                <th>Total Tickets</th>
+                                <th>Total Revenue (KES)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Nairobi - Mombasa</td>
+                                <td>60</td>
+                                <td>1,500</td>
+                                <td>2,250,000</td>
+                            </tr>
+                            <tr>
+                                <td>Nairobi - Kisumu</td>
+                                <td>40</td>
+                                <td>1,000</td>
+                                <td>1,200,000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Global Theme Logic (repeated for file independence)
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const storedTheme = localStorage.getItem('theme') || 'light';
+
+            document.documentElement.setAttribute('data-theme', storedTheme);
+            themeToggle.textContent = storedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            });
+            
+            // Reports: fetch summary and use it for quick dashboard
+            const output = document.getElementById('report-output');
+
+            async function fetchSummary() {
+                try {
+                    const res = await fetch('/api/v1/reports/summary', { credentials: 'include' });
+                    if (!res.ok) throw new Error('Failed to fetch summary');
+                    const s = await res.json();
+                    renderSummary(s);
+                } catch (err) {
+                    console.error('Error fetching summary', err);
+                    output.innerHTML = '<p class="report-result">Could not load summary.</p>';
+                }
+            }
+
+            function renderSummary(s) {
+                output.innerHTML = `
+                    <div class="report-result">
+                        <h3>System Summary</h3>
+                        <p><strong>Users:</strong> ${s.usersCount}</p>
+                        <p><strong>Bookings:</strong> ${s.bookingsCount}</p>
+                        <p><strong>Trips:</strong> ${s.tripsCount}</p>
+                        <p><strong>Buses:</strong> ${s.busesCount}</p>
+                    </div>`;
+            }
+
+            document.getElementById('report-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                // For now the server provides a quick summary; more complex reports can be added later
+                fetchSummary();
+            });
+
+            // initial load
+            fetchSummary();
+        });
+    </script>
+</body>
+</html>

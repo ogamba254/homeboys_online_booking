@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Routes - Homeboys-Swift Admin</title>
+    <style>
+        /* --- ADMIN PANEL BASE CSS & THEME LOGIC (Copied from dashboard.html) --- */
+        :root {
+            --background-color: #f4f7f9;
+            --sidebar-color: #2c3e50;
+            --main-text-color: #212529;
+            --card-background: #ffffff;
+            --primary-color: #e84c3d;
+            --primary-light: #f77f74;
+            --secondary-color: #34495e;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+        }
+        [data-theme='dark'] {
+            --background-color: #1a1e22;
+            --sidebar-color: #212529;
+            --main-text-color: #e9ecef;
+            --card-background: #2c3034;
+            --primary-color: #f06292;
+            --primary-light: #f48fb1;
+            --border-color: #495057;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--main-text-color);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+        }
+        /* Layout */
+        #sidebar {
+            width: 250px;
+            background-color: var(--sidebar-color);
+            color: white;
+            padding: 20px 0;
+            flex-shrink: 0;
+            transition: background-color 0.3s;
+        }
+        #main-content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        /* Sidebar Navigation */
+        #sidebar h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+        #sidebar a {
+            display: block;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-left: 5px solid transparent;
+            transition: background-color 0.2s, border-left 0.2s;
+        }
+        #sidebar a:hover, #sidebar a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 5px solid var(--primary-color);
+        }
+        /* Header */
+        #admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-background);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        #admin-header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+        /* Cards & Forms */
+        .card {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
+            color: var(--main-text-color);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--background-color);
+            color: var(--main-text-color);
+        }
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            margin-top: 20px;
+        }
+        .data-table th, .data-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table th {
+            background-color: var(--background-color);
+            color: var(--secondary-color);
+            font-size: 0.9em;
+        }
+        .data-table tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        [data-theme='dark'] .data-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+        .btn-icon {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            margin-left: 10px;
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar { width: 100%; height: auto; padding: 10px 0; }
+            #sidebar nav { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
+            #sidebar a { border-left: none; border-bottom: 3px solid transparent; padding: 10px 15px; }
+            #sidebar a:hover, #sidebar a.active { border-left: none; border-bottom: 3px solid var(--primary-color); }
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2>Homeboys Admin</h2>
+        <nav>
+            <a href="dashboard.html">📊 Dashboard</a>
+            <a href="manage-routes.html" class="active">🗺️ Routes</a>
+            <a href="manage-buses.html">🚌 Buses</a>
+            <a href="manage-bookings.html">📝 Bookings</a>
+            <a href="reports.html">📈 Reports</a>
+            <a href="users.html">👥 Users</a>
+            <a href="/index.html">🚪 Exit Admin</a>
+        </nav>
+    </div>
+
+    <div id="main-content">
+        <header id="admin-header">
+            <h1>Route Management</h1>
+            <button id="theme-toggle" class="btn-icon">Dark Mode</button>
+        </header>
+
+        <section class="card">
+            <h2>Add New Route</h2>
+            <form id="add-route-form">
+                <div class="form-group" style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <label for="origin">Origin City</label>
+                        <input type="text" id="origin" name="origin" required placeholder="e.g., Nairobi">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="destination">Destination City</label>
+                        <input type="text" id="destination" name="destination" required placeholder="e.g., Mombasa">
+                    </div>
+                </div>
+                <div class="form-group" style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <label for="base-price">Base Price (KES)</label>
+                        <input type="number" id="base-price" name="base-price" required placeholder="e.g., 1500" min="100">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="distance">Distance (km)</label>
+                        <input type="number" id="distance" name="distance" placeholder="e.g., 480" min="1">
+                    </div>
+                </div>
+                <div class="form-group" style="display:flex; gap:20px; margin-top:10px;">
+                    <div style="flex:1;">
+                        <label for="default-departure">Default Departure Time</label>
+                        <input type="time" id="default-departure" name="default-departure" value="09:00">
+                    </div>
+                    <div style="flex:1;">
+                        <label for="publish-days">Publish Days</label>
+                        <input type="number" id="publish-days" name="publish-days" min="1" max="30" value="7">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Save Route</button>
+            </form>
+        </section>
+
+        <section class="card" id="route-warnings" style="display:none; margin-top:10px;">
+            <strong style="color:#c0392b">Warning:</strong>
+            <p id="buses-warning">No active buses found. Routes will not be visible to clients until at least one active bus exists.</p>
+        </section>
+        
+        <section class="card">
+            <h2>Current Routes</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Route</th>
+                        <th>Base Price</th>
+                        <th>Distance (km)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Nairobi to Mombasa</td>
+                        <td>KES 1,500</td>
+                        <td>480</td>
+                        <td>
+                            <button class="btn-icon">Edit</button>
+                            <button class="btn-icon btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Nairobi to Kisumu</td>
+                        <td>KES 1,200</td>
+                        <td>350</td>
+                        <td>
+                            <button class="btn-icon">Edit</button>
+                            <button class="btn-icon btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <script>
+        // Global Theme Logic (repeated for file independence)
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const storedTheme = localStorage.getItem('theme') || 'light';
+
+            document.documentElement.setAttribute('data-theme', storedTheme);
+            themeToggle.textContent = storedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            });
+            
+            // Route Management: fetch, create, update, delete
+            const routesTbody = document.querySelector('.data-table tbody');
+
+            async function fetchRoutes() {
+                try {
+                    const res = await fetch('/api/v1/routes');
+                    const data = await res.json();
+                    renderRoutes(data);
+                } catch (err) {
+                    console.error('Error fetching routes', err);
+                }
+            }
+
+            function renderRoutes(routes) {
+                routesTbody.innerHTML = '';
+                routes.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${r._id}</td>
+                        <td>${r.origin} to ${r.destination}</td>
+                        <td>KES ${r.base_price}</td>
+                        <td>${r.distance || ''}</td>
+                        <td>
+                            <button class="btn-icon btn-edit" data-id="${r._id}">Edit</button>
+                            <button class="btn-icon btn-delete" data-id="${r._id}">Delete</button>
+                        </td>`;
+                    routesTbody.appendChild(tr);
+                });
+                // attach handlers
+                document.querySelectorAll('.btn-delete').forEach(b => b.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    if (!confirm('Delete this route?')) return;
+                    try {
+                        const resp = await fetch(`/api/v1/routes/${id}`, { method: 'DELETE', credentials: 'include' });
+                        if (resp.status === 204) fetchRoutes();
+                        else alert('Could not delete route');
+                    } catch (err) { console.error(err); alert('Error deleting route'); }
+                }));
+
+                document.querySelectorAll('.btn-edit').forEach(b => b.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const origin = prompt('New origin:');
+                    if (!origin) return;
+                    const destination = prompt('New destination:');
+                    if (!destination) return;
+                    const base_price = prompt('New base price:');
+                    try {
+                        const resp = await fetch(`/api/v1/routes/${id}`, {
+                            method: 'PUT',
+                            credentials: 'include',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ origin, destination, base_price: Number(base_price) })
+                        });
+                        if (resp.ok) fetchRoutes();
+                        else alert('Could not update route');
+                    } catch (err) { console.error(err); alert('Error updating route'); }
+                }));
+            }
+
+            document.getElementById('add-route-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const origin = document.getElementById('origin').value.trim();
+                const destination = document.getElementById('destination').value.trim();
+                const base_price = Number(document.getElementById('base-price').value);
+                const distance = Number(document.getElementById('distance').value) || undefined;
+                const default_departure_time = document.getElementById('default-departure').value || '09:00';
+                const publish_days = Number(document.getElementById('publish-days').value) || 7;
+                try {
+                    const resp = await fetch('/api/v1/routes', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ origin, destination, base_price, distance, default_departure_time, publish_days })
+                    });
+                    if (resp.ok) {
+                        this.reset();
+                        fetchRoutes();
+                    } else {
+                        const err = await resp.json();
+                        alert(err.message || 'Could not create route');
+                    }
+                } catch (err) { console.error(err); alert('Error creating route'); }
+            });
+
+            // initial load
+            fetchRoutes();
+
+            // Check for active buses to warn admin if none exist
+            async function checkActiveBuses() {
+                try {
+                    const r = await fetch('/api/v1/buses');
+                    if (!r.ok) return;
+                    const buses = await r.json();
+                    if (!buses || buses.length === 0) {
+                        document.getElementById('route-warnings').style.display = 'block';
+                    } else {
+                        document.getElementById('route-warnings').style.display = 'none';
+                    }
+                } catch (err) { console.error('Error checking buses', err); }
+            }
+            checkActiveBuses();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+/* frontend/public/css/main.css */
+
+/* 1. Define Theme Variables */
+:root {
+    /* Light Mode Defaults */
+    --background-color: #f4f7f9;
+    --card-background: #ffffff;
+    --text-color: #212529;
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --border-color: #dee2e6;
+}
+
+[data-theme='dark'] {
+    /* Dark Mode Overrides */
+    --background-color: #1a1e22;
+    --card-background: #2c3034;
+    --text-color: #e9ecef;
+    --primary-color: #4da6ff;
+    --secondary-color: #adb5bd;
+    --border-color: #495057;
+}
+
+/* 2. Global Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.card {
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 3. Theme Switcher */
+#theme-toggle {
+    cursor: pointer;
+    background: var(--secondary-color);
+    color: var(--card-background);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+/* Add more styles for form elements, buttons, etc. */
+input[type="text"], input[type="date"], select {
+    background-color: var(--card-background);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    border-radius: 4px;
+}

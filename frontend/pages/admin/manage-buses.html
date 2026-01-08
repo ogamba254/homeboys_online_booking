@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Buses - Homeboys-Swift Admin</title>
+    <style>
+        /* --- ADMIN PANEL BASE CSS (Copied from manage-routes.html) --- */
+        :root {
+            --background-color: #f4f7f9;
+            --sidebar-color: #2c3e50;
+            --main-text-color: #212529;
+            --card-background: #ffffff;
+            --primary-color: #e84c3d;
+            --primary-light: #f77f74;
+            --secondary-color: #34495e;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+        }
+        [data-theme='dark'] {
+            --background-color: #1a1e22;
+            --sidebar-color: #212529;
+            --main-text-color: #e9ecef;
+            --card-background: #2c3034;
+            --primary-color: #f06292;
+            --primary-light: #f48fb1;
+            --border-color: #495057;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--main-text-color);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+        }
+        /* Layout */
+        #sidebar {
+            width: 250px;
+            background-color: var(--sidebar-color);
+            color: white;
+            padding: 20px 0;
+            flex-shrink: 0;
+            transition: background-color 0.3s;
+        }
+        #main-content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        /* Sidebar Navigation */
+        #sidebar h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+        #sidebar a {
+            display: block;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-left: 5px solid transparent;
+            transition: background-color 0.2s, border-left 0.2s;
+        }
+        #sidebar a:hover, #sidebar a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 5px solid var(--primary-color);
+        }
+        /* Header */
+        #admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-background);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        #admin-header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+        /* Cards & Forms */
+        .card {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s;
+            color: var(--main-text-color);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--background-color);
+            color: var(--main-text-color);
+        }
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            margin-top: 20px;
+        }
+        .data-table th, .data-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table th {
+            background-color: var(--background-color);
+            color: var(--secondary-color);
+            font-size: 0.9em;
+        }
+        .data-table tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        [data-theme='dark'] .data-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+        .btn-icon {
+            background: var(--secondary-color);
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            margin-left: 10px;
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar { width: 100%; height: auto; padding: 10px 0; }
+            #sidebar nav { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
+            #sidebar a { border-left: none; border-bottom: 3px solid transparent; padding: 10px 15px; }
+            #sidebar a:hover, #sidebar a.active { border-left: none; border-bottom: 3px solid var(--primary-color); }
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2>Homeboys Admin</h2>
+        <nav>
+            <a href="dashboard.html">📊 Dashboard</a>
+            <a href="manage-routes.html">🗺️ Routes</a>
+            <a href="manage-buses.html" class="active">🚌 Buses</a>
+            <a href="manage-bookings.html">📝 Bookings</a>
+            <a href="reports.html">📈 Reports</a>
+            <a href="users.html">👥 Users</a>
+            <a href="/index.html">🚪 Exit Admin</a>
+        </nav>
+    </div>
+
+    <div id="main-content">
+        <header id="admin-header">
+            <h1>Bus Fleet Management</h1>
+            <button id="theme-toggle" class="btn-icon">Dark Mode</button>
+        </header>
+
+        <section class="card">
+            <h2>Register New Bus</h2>
+            <form id="add-bus-form">
+                <div class="form-group" style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <label for="reg-number">Registration Number</label>
+                        <input type="text" id="reg-number" name="reg-number" required placeholder="e.g., KBC 123X">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="model">Model/Type</label>
+                        <input type="text" id="model" name="model" required placeholder="e.g., Scania Coach">
+                    </div>
+                </div>
+                <div class="form-group" style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <label for="capacity">Seating Capacity</label>
+                        <input type="number" id="capacity" name="capacity" required placeholder="e.g., 45" min="10">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            <option value="active">Active</option>
+                            <option value="maintenance">Under Maintenance</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Register Bus</button>
+            </form>
+        </section>
+        
+        <section class="card">
+            <h2>Current Fleet</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Reg. No.</th>
+                        <th>Model</th>
+                        <th>Capacity</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="buses-tbody">
+                    <!-- Filled dynamically from API -->
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <script>
+        // Global Theme Logic (repeated for file independence)
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const storedTheme = localStorage.getItem('theme') || 'light';
+
+            document.documentElement.setAttribute('data-theme', storedTheme);
+            themeToggle.textContent = storedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            });
+            
+            // Bus Management Logic - fetch and manage buses via API
+            const busesTbody = document.getElementById('buses-tbody');
+
+            async function loadBuses() {
+                busesTbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+                try {
+                    const res = await fetch('/api/v1/buses');
+                    if (!res.ok) throw new Error('Failed to fetch buses');
+                    const buses = await res.json();
+                    if (!Array.isArray(buses) || buses.length === 0) {
+                        busesTbody.innerHTML = '<tr><td colspan="6">No buses found.</td></tr>';
+                        return;
+                    }
+
+                    busesTbody.innerHTML = buses.map(b => `
+                        <tr>
+                            <td>${b.bus_id}</td>
+                            <td>${b.plate_number}</td>
+                            <td>${b.model || ''}</td>
+                            <td>${b.capacity}</td>
+                            <td style="color: ${b.status === 'active' ? 'var(--success-color)' : '#ffc107'}; font-weight: bold;">${b.status}</td>
+                            <td>
+                                <button class="btn-icon" data-id="${b.bus_id}" data-action="edit">Edit</button>
+                                <button class="btn-icon btn-delete" data-id="${b.bus_id}" data-action="delete">Retire</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } catch (err) {
+                    console.error('Error loading buses', err);
+                    busesTbody.innerHTML = '<tr><td colspan="6">Error loading buses.</td></tr>';
+                }
+            }
+
+            // Add bus
+            document.getElementById('add-bus-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const plate = document.getElementById('reg-number').value.trim();
+                const model = document.getElementById('model').value.trim();
+                const capacity = Number(document.getElementById('capacity').value);
+                const status = document.getElementById('status').value;
+
+                if (!plate || !capacity) { alert('Please provide plate number and capacity.'); return; }
+
+                try {
+                    const res = await fetch('/api/v1/buses', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ plate_number: plate, model, capacity, status })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) { alert(data.message || 'Failed to add bus'); return; }
+                    this.reset();
+                    await loadBuses();
+                } catch (err) {
+                    console.error('Error adding bus', err);
+                    alert('Network error adding bus.');
+                }
+            });
+
+            // Handle edit/delete clicks (event delegation)
+            busesTbody.addEventListener('click', async (ev) => {
+                const btn = ev.target.closest('button');
+                if (!btn) return;
+                const id = btn.getAttribute('data-id');
+                const action = btn.getAttribute('data-action');
+                if (action === 'delete') {
+                    if (!confirm('Retire this bus?')) return;
+                    try {
+                        const res = await fetch('/api/v1/buses/' + id, { method: 'DELETE', credentials: 'include' });
+                        if (!res.ok) { const d = await res.json(); alert(d.message || 'Failed to delete'); return; }
+                        await loadBuses();
+                    } catch (err) { console.error(err); alert('Network error'); }
+                } else if (action === 'edit') {
+                    // Simple inline edit via prompts
+                    try {
+                        const newPlate = prompt('Plate number:', btn.closest('tr').querySelectorAll('td')[1].textContent) || '';
+                        const newModel = prompt('Model:', btn.closest('tr').querySelectorAll('td')[2].textContent) || '';
+                        const newCapacity = prompt('Capacity:', btn.closest('tr').querySelectorAll('td')[3].textContent) || '';
+                        const newStatus = prompt('Status (active/maintenance/inactive):', btn.closest('tr').querySelectorAll('td')[4].textContent) || '';
+                        const payload = { plate_number: newPlate, model: newModel, capacity: Number(newCapacity), status: newStatus };
+                        const res = await fetch('/api/v1/buses/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload) });
+                        const d = await res.json();
+                        if (!res.ok) { alert(d.message || 'Failed to update'); return; }
+                        await loadBuses();
+                    } catch (err) { console.error(err); alert('Update failed'); }
+                }
+            });
+
+            // Initial load
+            loadBuses();
+        });
+    </script>
+</body>
+</html>

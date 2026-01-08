@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: homeboys-swift-backend
+    env: docker
+    plan: starter
+    dockerfilePath: Dockerfile
+    buildCommand: ''
+    startCommand: 'node src/index.js'
+    envVars:
+      - key: PORT
+        value: '3000'
+      - key: MONGODB_URI
+        value: 'mongodb://your-mongodb-uri'
+      - key: NODE_ENV
+        value: 'production'

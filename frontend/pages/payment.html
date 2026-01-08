@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Gateway - Homeboys-Swift</title>
+    
+    <style>
+        /* 1. Define Theme Variables */
+        :root {
+            /* Light Mode Defaults */
+            --background-color: #f4f7f9;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --primary-color: #e84c3d; /* Warm Red/Orange for primary branding */
+            --primary-light: #f77f74;
+            --secondary-color: #34495e; /* Dark Navy for strong contrast */
+            --border-color: #dee2e6;
+            --hero-background: #465a70;
+        }
+        
+        [data-theme='dark'] {
+            /* Dark Mode Overrides */
+            --background-color: #1a1e22;
+            --card-background: #2c3034;
+            --text-color: #e9ecef;
+            --primary-color: #f06292; /* Pink/Purple accent for dark mode */
+            --primary-light: #f48fb1;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --hero-background: #212529;
+        }
+
+        /* 2. Global Resets & Body */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Arial', sans-serif; 
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            flex-grow: 1; 
+        }
+        h1, h2, h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5em;
+            transition: color 0.3s;
+        }
+        [data-theme='dark'] h1, [data-theme='dark'] h2, [data-theme='dark'] h3 {
+            color: var(--text-color);
+        }
+        h1 {
+            text-align: center;
+            padding-top: 50px;
+            font-size: 2.2rem;
+            color: var(--primary-color);
+        }
+        h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+
+        /* 3. Header & Navigation */
+        #main-header {
+            background-color: var(--card-background);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            margin-left: 20px;
+            padding: 5px 10px;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        /* 4. Payment Card Styles */
+        .card {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+            max-width: 500px; /* Wider card for payment details */
+            margin: 30px auto; 
+        }
+        .card p {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        #price-due {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        #payment-form label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        #payment-form select,
+        #payment-form input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            margin-bottom: 10px;
+        }
+        #payment-form select:focus, 
+        #payment-form input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(232, 76, 61, 0.2);
+            outline: none;
+        }
+
+        /* 5. Buttons */
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+            width: 100%; /* Full width button */
+            margin-top: 20px;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+        .btn-primary-ghost {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-primary-ghost:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-icon {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* 6. Footer Styles */
+        #main-footer {
+            background-color: var(--secondary-color); 
+            color: white;
+            padding: 40px 0;
+            margin-top: auto; 
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 40px;
+        }
+        .footer-section h3 {
+            color: var(--primary-light); 
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .footer-section p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #cccccc;
+        }
+        .footer-section ul {
+            list-style: none;
+        }
+        .footer-section ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            line-height: 2;
+            transition: color 0.2s;
+        }
+        .footer-section ul li a:hover {
+            color: var(--primary-color); 
+        }
+
+        /* 7. Responsiveness */
+        @media (max-width: 900px) {
+             .footer-grid {
+                grid-template-columns: repeat(2, 1fr); 
+            }
+        }
+        @media (max-width: 600px) {
+            .header-content {
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center;
+            }
+            .logo {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            nav {
+                margin-bottom: 10px;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr; 
+            }
+            .footer-section {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <header id="main-header">
+        <div class="header-content container">
+            <a href="index.html" class="logo">Homeboys-Swift</a>
+            <nav>
+                <a href="search-bus.html">Book A Trip</a>
+                <!-- Admin Panel link removed for public pages -->
+                <a href="login.html">My Trips / Login</a>
+                <a href="register.html" class="btn-primary-ghost">Register</a>
+            </nav>
+            <button id="theme-toggle" class="btn-icon">Dark Mode</button>
+        </div>
+    </header>
+    <div class="container">
+        <h1>Complete Your Payment</h1>
+        
+        <div class="card">
+            <h2>Payment Summary</h2>
+            <p>Seats: <span id="seats-summary" style="font-weight: 500;">-</span></p>
+            <p>Total Due: **KES <span id="price-due">-</span>**</p>
+            <hr style="margin: 20px 0; border-color: var(--border-color);">
+
+            <form id="payment-form">
+                <label for="method">Payment Method:</label>
+                <select id="method" required>
+                    <option value="mobile">Mobile Money (M-Pesa/Airtel)</option>
+                    <option value="card">Credit/Debit Card (Mock)</option>
+                </select>
+
+                <div id="card-details-fields">
+                    <label for="card-number">Card Number (Mock):</label>
+                    <input type="text" id="card-number" placeholder="Enter 16 digits" required>
+                </div>
+
+                <button type="submit" class="btn-primary">Pay Now</button>
+            </form>
+        </div>
+    </div>
+
+
+    <footer id="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Homeboys-Swift is dedicated to providing swift, safe, and comfortable travel across the region.</p>
+                <p>&copy; 2025 Homeboys-Swift Travellers.</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="search-bus.html">Book Now</a></li>
+                    <li><a href="login.html">My Bookings</a></li>
+                    <li><a href="#careers">Careers</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#faq">FAQ</a></li>
+                    <li><a href="#policy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms & Conditions</a></li>
+                    <li><a href="mailto:support@homeboys-swift.com">Contact Support</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>Email: info@homeboys-swift.com</p>
+                <p>Phone: +254 7XX XXX XXX</p>
+                <p>Head Office: Nairobi, Kenya</p>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // --- Global Theme Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const storedTheme = localStorage.getItem('theme') || 'light';
+
+            document.documentElement.setAttribute('data-theme', storedTheme);
+            themeToggle.textContent = storedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            });
+        });
+
+        // --- Page-specific logic: Payment processing ---
+        const selectedSeats = JSON.parse(localStorage.getItem('seats'));
+        const totalPrice = localStorage.getItem('totalPrice');
+        const cardDetailsFields = document.getElementById('card-details-fields');
+        const methodSelect = document.getElementById('method');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!selectedSeats || !totalPrice) {
+                alert("Missing booking details. Please search for a trip.");
+                window.location.href = 'index.html';
+                return;
+            }
+            document.getElementById('seats-summary').textContent = selectedSeats.join(', ');
+            document.getElementById('price-due').textContent = totalPrice;
+
+            // Initial state check for payment method
+            toggleCardFields();
+            methodSelect.addEventListener('change', toggleCardFields);
+
+            document.getElementById('payment-form').addEventListener('submit', handlePayment);
+        });
+        
+        function toggleCardFields() {
+            if (methodSelect.value === 'card') {
+                cardDetailsFields.style.display = 'block';
+                document.getElementById('card-number').setAttribute('required', 'required');
+            } else {
+                cardDetailsFields.style.display = 'none';
+                document.getElementById('card-number').removeAttribute('required');
+            }
+        }
+
+        async function handlePayment(e) {
+            e.preventDefault();
+            const method = document.getElementById('method').value;
+            const cardNumber = document.getElementById('card-number').value;
+
+            alert(`Processing payment of KES ${totalPrice} via ${method}...`);
+            
+            // --- Real backend booking call ---
+            const trip = JSON.parse(localStorage.getItem('selectedTrip') || '{}');
+            const bookingData = {
+                trip_id: trip.trip_id || trip.tripId || trip._id,
+                user_id: localStorage.getItem('userId') || null,
+                seat_number: selectedSeats.join(','),
+                seats: selectedSeats,
+                amount: totalPrice,
+                method: method,
+                price_paid: Number(totalPrice)
+            };
+
+            try {
+                // Attempt to create booking via backend
+                const res = await fetch('/api/v1/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        trip_id: bookingData.trip_id,
+                        user_id: bookingData.user_id,
+                        seat_number: selectedSeats[0] || '',
+                        price_paid: bookingData.price_paid
+                    })
+                });
+
+                const result = await res.json().catch(() => ({}));
+                let bookingId;
+                if (res.ok) {
+                    bookingId = (result.booking && (result.booking.booking_id || result.booking.bookingId)) || result.booking_id || result.bookingId || (result._id ? result._id : 'BKB' + Math.floor(Math.random() * 99999));
+                    // store successful booking summary
+                    localStorage.setItem('lastBookingID', bookingId);
+                    localStorage.setItem('lastBookingSummary', JSON.stringify({ tripId: bookingData.trip_id, seats: selectedSeats, amount: bookingData.price_paid, method, status: 'confirmed' }));
+                } else {
+                    // On failure, create a provisional booking id and proceed
+                    bookingId = 'PENDING-' + Date.now() + '-' + Math.floor(Math.random() * 90000 + 10000);
+                    localStorage.setItem('lastBookingID', bookingId);
+                    localStorage.setItem('lastBookingSummary', JSON.stringify({ tripId: bookingData.trip_id, seats: selectedSeats, amount: bookingData.price_paid, method, status: 'pending', error: (result.message || 'Payment/booking not completed') }));
+                }
+
+                // Redirect to confirmation page regardless of payment success
+                window.location.href = 'booking-confirmation.html';
+            } catch (err) {
+                console.error('Booking error', err);
+                // Network error: still proceed with provisional booking
+                const bookingId = 'PENDING-' + Date.now() + '-' + Math.floor(Math.random() * 90000 + 10000);
+                localStorage.setItem('lastBookingID', bookingId);
+                localStorage.setItem('lastBookingSummary', JSON.stringify({ tripId: bookingData.trip_id, seats: selectedSeats, amount: bookingData.price_paid, method, status: 'pending', error: err.message }));
+                window.location.href = 'booking-confirmation.html';
+            }
+        }
+        
+        // Placeholder function (for completeness)
+        function fetchData(endpoint, data) {
+            console.log(`[API] Calling ${endpoint} with data:`, data);
+            return new Promise(resolve => setTimeout(() => resolve({ success: true }), 500));
+        }
+    </script>
+</body>
+</html>

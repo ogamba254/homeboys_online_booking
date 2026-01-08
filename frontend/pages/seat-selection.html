@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Your Seat - Homeboys-Swift</title>
+    
+    <style>
+        /* 1. Define Theme Variables */
+        :root {
+            /* Light Mode Defaults */
+            --background-color: #f4f7f9;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --primary-color: #e84c3d; /* Warm Red/Orange for primary branding */
+            --primary-light: #f77f74;
+            --secondary-color: #34495e; /* Dark Navy for strong contrast */
+            --border-color: #dee2e6;
+            --hero-background: #465a70;
+        }
+        
+        [data-theme='dark'] {
+            /* Dark Mode Overrides */
+            --background-color: #1a1e22;
+            --card-background: #2c3034;
+            --text-color: #e9ecef;
+            --primary-color: #f06292; /* Pink/Purple accent for dark mode */
+            --primary-light: #f48fb1;
+            --secondary-color: #adb5bd;
+            --border-color: #495057;
+            --hero-background: #212529;
+        }
+
+        /* 2. Global Resets & Body */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Arial', sans-serif; 
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            flex-grow: 1; 
+        }
+        h1, h2, h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5em;
+            transition: color 0.3s;
+        }
+        [data-theme='dark'] h1, [data-theme='dark'] h2, [data-theme='dark'] h3 {
+            color: var(--text-color);
+        }
+        h1 {
+            text-align: center;
+            padding: 50px 0 30px 0;
+            font-size: 2.2rem;
+            color: var(--primary-color);
+        }
+
+        /* 3. Header & Navigation */
+        #main-header {
+            background-color: var(--card-background);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            margin-left: 20px;
+            padding: 5px 10px;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        /* 4. Card & Seat Map Styles */
+        .card {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+            max-width: 700px; /* Wider to accommodate map */
+            margin: 30px auto; 
+            text-align: center;
+        }
+        .card h2 {
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+        }
+        
+        .seat-map {
+            display: grid;
+            grid-template-columns: repeat(4, 70px); /* Adjusted size for better visibility */
+            gap: 15px;
+            margin: 20px auto 40px auto;
+            width: fit-content;
+            background: var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .seat {
+            width: 70px;
+            height: 70px;
+            line-height: 70px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        
+        /* Seat Status Colors */
+        .seat.available { 
+            background-color: #34495e; /* Secondary Color for Available */
+            color: white;
+            cursor: pointer;
+        }
+        .seat.available:hover { 
+            background-color: var(--primary-light); 
+            transform: scale(1.05);
+        }
+        .seat.unavailable { 
+            background-color: #dc3545; /* Red for Unavailable */
+            color: white;
+            cursor: not-allowed; 
+        }
+        .seat.selected { 
+            background-color: #28a745; /* Green for Selected */
+            color: white;
+            border: 3px solid #1e7e34;
+        }
+        .seat.driver { 
+            background-color: #adb5bd; /* Gray for Driver */
+            color: #212529;
+            grid-column: 1 / span 2;
+            line-height: 25px;
+            padding-top: 10px;
+            height: 40px;
+            align-self: flex-start;
+            cursor: default;
+        }
+        
+        /* Summary Area */
+        #total-price-display {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        .card p {
+            margin-bottom: 10px;
+        }
+
+
+        /* 5. Buttons */
+        #continue-booking {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: background-color 0.2s, opacity 0.2s;
+            margin-top: 25px;
+        }
+        #continue-booking:hover:not(:disabled) {
+            background-color: var(--primary-light);
+        }
+        #continue-booking:disabled {
+            background-color: #adb5bd;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .btn-icon {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* 6. Footer Styles */
+        #main-footer {
+            background-color: var(--secondary-color); 
+            color: white;
+            padding: 40px 0;
+            margin-top: auto; 
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 40px;
+        }
+        .footer-section h3 {
+            color: var(--primary-light); 
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .footer-section p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #cccccc;
+        }
+        .footer-section ul {
+            list-style: none;
+        }
+        .footer-section ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            line-height: 2;
+            transition: color 0.2s;
+        }
+        .footer-section ul li a:hover {
+            color: var(--primary-color); 
+        }
+
+        /* 7. Responsiveness */
+        @media (max-width: 768px) {
+            .seat-map {
+                grid-template-columns: repeat(4, 50px);
+                gap: 10px;
+                padding: 15px;
+            }
+            .seat {
+                width: 50px;
+                height: 50px;
+                line-height: 50px;
+            }
+        }
+        @media (max-width: 600px) {
+            .header-content {
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center;
+            }
+            .logo {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            nav {
+                margin-bottom: 10px;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr; 
+            }
+            .seat-map {
+                grid-template-columns: repeat(4, 45px);
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <header id="main-header">
+        <div class="header-content container">
+            <a href="index.html" class="logo">Homeboys-Swift</a>
+            <nav>
+                <a href="search-bus.html" style="color: var(--primary-light);">Book A Trip</a>
+                <!-- Admin Panel link removed for public pages -->
+                <a href="login.html">My Trips / Login</a>
+                <a href="register.html" class="btn-primary-ghost">Register</a>
+            </nav>
+            <button id="theme-toggle" class="btn-icon">Dark Mode</button>
+        </div>
+    </header>
+    <div class="container">
+        <h1>Select Seats for Trip #<span id="trip-id">...</span></h1>
+        
+        <div class="card">
+            <h2>Seat Map</h2>
+            <div class="seat-map" id="seat-map">
+                <div class="seat driver" style="grid-column: 1 / span 2;">DRIVER</div>
+                </div>
+            
+            <p>Selected Seats: <span id="selected-seats-display" style="font-weight: bold; color: var(--primary-color);">None</span></p>
+            <p>Total Price: **KES <span id="total-price-display">0.00</span>**</p>
+            
+            <button id="continue-booking" disabled>Proceed to Payment</button>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <p style="display: inline-block; margin: 0 10px;"><span class="seat" style="background-color: #28a745; width: 20px; height: 20px; line-height: 20px; display: inline-block; vertical-align: middle;"></span> Selected</p>
+            <p style="display: inline-block; margin: 0 10px;"><span class="seat" style="background-color: #34495e; width: 20px; height: 20px; line-height: 20px; display: inline-block; vertical-align: middle;"></span> Available</p>
+            <p style="display: inline-block; margin: 0 10px;"><span class="seat" style="background-color: #dc3545; width: 20px; height: 20px; line-height: 20px; display: inline-block; vertical-align: middle;"></span> Unavailable</p>
+        </div>
+    </div>
+
+
+    <footer id="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Homeboys-Swift is dedicated to providing swift, safe, and comfortable travel across the region.</p>
+                <p>&copy; 2025 Homeboys-Swift Travellers.</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="search-bus.html">Book Now</a></li>
+                    <li><a href="login.html">My Bookings</a></li>
+                    <li><a href="#careers">Careers</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#faq">FAQ</a></li>
+                    <li><a href="#policy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms & Conditions</a></li>
+                    <li><a href="mailto:support@homeboys-swift.com">Contact Support</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>Email: info@homeboys-swift.com</p>
+                <p>Phone: +254 7XX XXX XXX</p>
+                <p>Head Office: Nairobi, Kenya</p>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // --- Global Theme Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const storedTheme = localStorage.getItem('theme') || 'light';
+
+            document.documentElement.setAttribute('data-theme', storedTheme);
+            themeToggle.textContent = storedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            });
+        });
+
+        // --- Page-specific logic: Seat selection ---
+        let selectedSeats = [];
+        const tripData = JSON.parse(localStorage.getItem('selectedTrip'));
+        const SEAT_PRICE = tripData ? tripData.price : 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!tripData) {
+                alert("Trip data missing. Redirecting to search.");
+                window.location.href = 'index.html';
+                return;
+            }
+            document.getElementById('trip-id').textContent = tripData.tripId;
+            renderSeatMap();
+
+            document.getElementById('continue-booking').addEventListener('click', proceedToPayment);
+        });
+
+        function renderSeatMap() {
+            const map = document.getElementById('seat-map');
+            // Mock data for 20 seats (4x5)
+            // Note: Seats 1-4 are Row 1, 5-8 are Row 2, etc.
+            const mockSeats = Array(20).fill().map((_, i) => ({
+                number: i + 1,
+                // Make every 5th seat (i.e., seat 5, 10, 15, 20) unavailable as a mock rule
+                status: ((i + 1) % 5 === 0) ? 'unavailable' : 'available' 
+            }));
+
+            // Clear any old seats before rendering
+            // We keep the first element (the driver)
+            while(map.children.length > 1) {
+                map.removeChild(map.lastChild);
+            }
+            
+            mockSeats.forEach(seat => {
+                const el = document.createElement('div');
+                el.className = `seat ${seat.status}`;
+                el.textContent = seat.number;
+                el.dataset.seatNumber = seat.number;
+
+                if (seat.status === 'available') {
+                    el.addEventListener('click', () => toggleSeat(el, seat.number));
+                }
+                map.appendChild(el);
+            });
+        }
+
+        function toggleSeat(el, number) {
+            const index = selectedSeats.indexOf(number);
+            if (index > -1) {
+                // Deselect
+                selectedSeats.splice(index, 1);
+                el.classList.remove('selected');
+            } else {
+                // Select
+                selectedSeats.push(number);
+                el.classList.add('selected');
+            }
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const total = selectedSeats.length * SEAT_PRICE;
+            document.getElementById('selected-seats-display').textContent = selectedSeats.sort((a, b) => a - b).join(', ') || 'None';
+            document.getElementById('total-price-display').textContent = total.toFixed(2);
+            document.getElementById('continue-booking').disabled = selectedSeats.length === 0;
+            
+            // Persist data for the next page (payment)
+            localStorage.setItem('seats', JSON.stringify(selectedSeats));
+            localStorage.setItem('totalPrice', total);
+        }
+
+        function proceedToPayment() {
+            // Check if seats are selected and total is calculated
+            if (selectedSeats.length > 0 && localStorage.getItem('totalPrice') > 0) {
+                 window.location.href = 'payment.html';
+            } else {
+                alert("Please select at least one seat to proceed.");
+            }
+        }
+        
+        // Placeholder function (for completeness)
+        function fetchData(endpoint, data) {
+            console.log(`[API] Calling ${endpoint} with data:`, data);
+            return new Promise(resolve => setTimeout(() => resolve({ success: true }), 500));
+        }
+    </script>
+</body>
+</html>
